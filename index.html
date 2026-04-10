@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Logic Simulation | SPPU AI Unit 4</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<!-- Navigation -->
+<nav class="topnav" id="topnav">
+  <button class="active" onclick="showSection('home')">Home</button>
+  <button onclick="showSection('plvsfol')">PL vs FOL</button>
+  <button onclick="showSection('inference')">Inference Rules</button>
+  <button onclick="showSection('fol')">FOL Builder</button>
+  <button onclick="showSection('resolution')">Resolution</button>
+</nav>
+
+<!-- ============ HOME ============ -->
+<div class="section active" id="sec-home">
+  <div class="hero">
+    <h1>Logic for Intelligent Agents</h1>
+    <p>Interactive Simulation — SPPU TE Comp | 310253: Artificial Intelligence | Unit 4</p>
+    <span class="badge">Russell & Norvig — Chapters 7, 8, 9</span>
+  </div>
+
+  <div class="card">
+    <h2>What You'll Learn</h2>
+    <p>This simulation covers the complete logic foundation for AI agents as per SPPU syllabus:</p>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1rem;margin-top:1rem;">
+      <div class="playground" style="border-left-color:var(--success)">
+        <strong style="color:var(--success)">1. PL vs FOL</strong>
+        <p style="font-size:0.85rem;color:var(--muted);margin-top:4px">See how Propositional Logic & First-Order Logic differ with live side-by-side examples</p>
+      </div>
+      <div class="playground" style="border-left-color:var(--warn)">
+        <strong style="color:var(--warn)">2. Inference Rules</strong>
+        <p style="font-size:0.85rem;color:var(--muted);margin-top:4px">Modus Ponens, Tollens, And/Or rules, Resolution — animated step-by-step demos</p>
+      </div>
+      <div class="playground" style="border-left-color:var(--info)">
+        <strong style="color:var(--info)">3. FOL Builder</strong>
+        <p style="font-size:0.85rem;color:var(--muted);margin-top:4px">Construct FOL sentences with quantifiers, predicates, functions — see parse trees</p>
+      </div>
+      <div class="playground" style="border-left-color:var(--accent)">
+        <strong style="color:var(--accent)">4. Resolution Prover</strong>
+        <p style="font-size:0.85rem;color:var(--muted);margin-top:4px">Watch the resolution algorithm prove theorems clause-by-clause</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Why Logic Matters for AI Agents</h2>
+    <p>A <strong>Logical Agent</strong> is different from a simple reflex agent. It maintains a <strong>Knowledge Base (KB)</strong> and uses <strong>inference</strong> to derive new facts.</p>
+    <div class="playground" style="margin-top:1rem">
+      <strong>The KB Agent Cycle:</strong>
+      <div class="result" id="kbCycleResult">
+        <div class="step">1. Agent <span class="highlight">PERCEIVES</span> environment → "It is raining"</div>
+        <div class="step">2. <span class="rule-name">TELL(KB,</span> "Raining") → KB stores the fact</div>
+        <div class="step">3. <span class="rule-name">ASK(KB,</span> "What action?") → Inference Engine reasons</div>
+        <div class="step">4. KB knows: Raining ⇒ TakeUmbrella → derives <span class="highlight">TakeUmbrella</span></div>
+        <div class="step">5. Agent <span class="highlight">PERFORMS</span> action → Takes umbrella</div>
+        <div class="step">6. <span class="rule-name">TELL(KB,</span> "Did(TakeUmbrella)") → KB updated</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ PL vs FOL ============ -->
+<div class="section" id="sec-plvsfol">
+  <div class="card">
+    <h2>Propositional Logic vs First-Order Logic</h2>
+    <p>Understand the fundamental difference: PL deals with <strong>simple true/false facts</strong>, while FOL can express <strong>objects, relationships, and general rules</strong>.</p>
+
+    <div class="compare-grid">
+      <div class="compare-col">
+        <h3>Propositional Logic <span class="tag simple">Simple</span></h3>
+        <table class="truth-table" style="font-size:0.85rem">
+          <tr><th>Feature</th><th>Detail</th></tr>
+          <tr><td>Variables</td><td>P, Q, R (true/false only)</td></tr>
+          <tr><td>Connectives</td><td>¬, ∧, ∨, ⇒, ⇔</td></tr>
+          <tr><td>Objects?</td><td class="val-false">NO</td></tr>
+          <tr><td>Quantifiers?</td><td class="val-false">NO (∀, ∃)</td></tr>
+          <tr><td>Relations?</td><td class="val-false">NO</td></tr>
+          <tr><td>Expressiveness</td><td>Limited</td></tr>
+        </table>
+      </div>
+      <div class="compare-col fol">
+        <h3>First-Order Logic <span class="tag powerful">Powerful</span></h3>
+        <table class="truth-table" style="font-size:0.85rem">
+          <tr><th>Feature</th><th>Detail</th></tr>
+          <tr><td>Variables</td><td>x, y (represent objects)</td></tr>
+          <tr><td>Connectives</td><td>¬, ∧, ∨, ⇒, ⇔ + Quantifiers</td></tr>
+          <tr><td>Objects?</td><td class="val-true">YES (constants, variables)</td></tr>
+          <tr><td>Quantifiers?</td><td class="val-true">YES (∀ "for all", ∃ "exists")</td></tr>
+          <tr><td>Relations?</td><td class="val-true">YES (predicates, functions)</td></tr>
+          <tr><td>Expressiveness</td><td>Very High</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Live Comparison — Same Statement, Two Logics</h2>
+    <p>Select an English statement and see how each logic represents it:</p>
+    <div class="example-pills" id="plfolPills">
+      <span class="pill active" onclick="showPLFOL(0,this)">All birds fly</span>
+      <span class="pill" onclick="showPLFOL(1,this)">Some boys like football</span>
+      <span class="pill" onclick="showPLFOL(2,this)">Every man respects parents</span>
+      <span class="pill" onclick="showPLFOL(3,this)">Rahul is a student</span>
+      <span class="pill" onclick="showPLFOL(4,this)">No person buys expensive policy</span>
+      <span class="pill" onclick="showPLFOL(5,this)">All girls love pink</span>
+    </div>
+    <div class="compare-grid">
+      <div class="compare-col">
+        <h3 style="color:var(--accent)">Propositional Logic</h3>
+        <div class="result" id="plResult">Loading...</div>
+      </div>
+      <div class="compare-col fol">
+        <h3 style="color:var(--info)">First-Order Logic</h3>
+        <div class="result" id="folResult">Loading...</div>
+      </div>
+    </div>
+    <div class="playground" id="plfolExplanation"></div>
+  </div>
+
+  <div class="card">
+    <h2>Propositional Logic — Truth Table Generator</h2>
+    <p>Choose a connective and see its truth table with real-world meaning:</p>
+    <div class="example-pills">
+      <span class="pill active" onclick="showTruthTable('not',this)">NOT (¬)</span>
+      <span class="pill" onclick="showTruthTable('and',this)">AND (∧)</span>
+      <span class="pill" onclick="showTruthTable('or',this)">OR (∨)</span>
+      <span class="pill" onclick="showTruthTable('implies',this)">IMPLIES (⇒)</span>
+      <span class="pill" onclick="showTruthTable('biconditional',this)">BICONDITIONAL (⇔)</span>
+    </div>
+    <div id="truthTableArea"></div>
+    <div class="playground" id="truthExplanation"></div>
+  </div>
+
+  <div class="card">
+    <h2>Key Equivalences (Must Memorize for Exam!)</h2>
+    <div class="result">
+<div class="step"><span class="rule-name">P ⇒ Q  ≡  ¬P ∨ Q</span>           ← MOST IMPORTANT! (Implication Elimination)</div>
+<div class="step"><span class="rule-name">P ⇔ Q  ≡  (P⇒Q) ∧ (Q⇒P)</span>   ← Biconditional Elimination</div>
+<div class="step"><span class="rule-name">¬(P∧Q) ≡  ¬P ∨ ¬Q</span>          ← De Morgan's Law 1</div>
+<div class="step"><span class="rule-name">¬(P∨Q) ≡  ¬P ∧ ¬Q</span>          ← De Morgan's Law 2</div>
+<div class="step"><span class="rule-name">¬¬P    ≡  P</span>                 ← Double Negation</div>
+<div class="step"><span class="rule-name">P ⇒ Q  ≡  ¬Q ⇒ ¬P</span>          ← Contrapositive</div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ INFERENCE RULES ============ -->
+<div class="section" id="sec-inference">
+  <div class="card">
+    <h2>Inference Rules — Interactive Demos</h2>
+    <p>Click any rule to see an animated step-by-step proof. Then try your own examples!</p>
+
+    <div class="rule-grid" id="ruleGrid">
+      <div class="rule-card active" onclick="selectRule('mp',this)">
+        <div class="rule-title">Modus Ponens</div>
+        <div class="rule-formula">A ⇒ B, A ∴ B</div>
+        <div class="rule-desc">If A implies B and A is true, then B is true</div>
+      </div>
+      <div class="rule-card" onclick="selectRule('mt',this)">
+        <div class="rule-title">Modus Tollens</div>
+        <div class="rule-formula">A ⇒ B, ¬B ∴ ¬A</div>
+        <div class="rule-desc">If A implies B and B is false, then A is false</div>
+      </div>
+      <div class="rule-card" onclick="selectRule('ai',this)">
+        <div class="rule-title">And-Introduction</div>
+        <div class="rule-formula">A, B ∴ A ∧ B</div>
+        <div class="rule-desc">If A is true and B is true, then A AND B is true</div>
+      </div>
+      <div class="rule-card" onclick="selectRule('ae',this)">
+        <div class="rule-title">And-Elimination</div>
+        <div class="rule-formula">A ∧ B ∴ A (or B)</div>
+        <div class="rule-desc">If A AND B is true, then A is true individually</div>
+      </div>
+      <div class="rule-card" onclick="selectRule('oi',this)">
+        <div class="rule-title">Or-Introduction</div>
+        <div class="rule-formula">A ∴ A ∨ B</div>
+        <div class="rule-desc">If A is true, then A OR B is true (for any B)</div>
+      </div>
+      <div class="rule-card" onclick="selectRule('res',this)">
+        <div class="rule-title">Resolution</div>
+        <div class="rule-formula">A ∨ B, ¬A ∨ C ∴ B ∨ C</div>
+        <div class="rule-desc">Cancel complementary literals, combine the rest</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2 id="demoTitle">Live Demo: Modus Ponens</h2>
+    <div class="example-pills" id="demoPills"></div>
+    <div class="result" id="demoResult"></div>
+    <div class="playground" style="margin-top:1rem">
+      <strong>Try Your Own:</strong>
+      <div id="customInputs"></div>
+      <button class="btn btn-primary" onclick="runCustom()" style="margin-top:0.5rem">Run Inference</button>
+      <div class="result" id="customResult" style="display:none"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Combined Inference — Chain Proof Demo</h2>
+    <p>See how multiple rules combine to prove complex theorems:</p>
+    <div class="example-pills">
+      <span class="pill active" onclick="showChainProof(0,this)">Rain → Slippery Road</span>
+      <span class="pill" onclick="showChainProof(1,this)">Rahul Respects Sunita</span>
+      <span class="pill" onclick="showChainProof(2,this)">West is Criminal</span>
+      <span class="pill" onclick="showChainProof(3,this)">Not Sunny (Modus Tollens Chain)</span>
+    </div>
+    <div class="result" id="chainResult"></div>
+  </div>
+</div>
+
+<!-- ============ FOL BUILDER ============ -->
+<div class="section" id="sec-fol">
+  <div class="card">
+    <h2>First-Order Logic — Construction & Operators</h2>
+    <p>FOL adds <strong>objects, quantifiers, predicates, and functions</strong> to propositional logic. Here are the building blocks:</p>
+
+    <div class="compare-grid">
+      <div class="compare-col">
+        <h3 style="color:var(--warn)">FOL Components</h3>
+        <table class="truth-table" style="font-size:0.85rem">
+          <tr><th>Component</th><th>Symbol</th><th>Example</th></tr>
+          <tr><td>Constants</td><td>a, b, John</td><td>John, 2, Pune</td></tr>
+          <tr><td>Variables</td><td>x, y, z</td><td>Represents any object</td></tr>
+          <tr><td>Predicates</td><td>P(x), Likes(x,y)</td><td>Student(John)</td></tr>
+          <tr><td>Functions</td><td>f(x), Father(x)</td><td>Father(John) = Ram</td></tr>
+          <tr><td>Connectives</td><td>¬ ∧ ∨ ⇒ ⇔</td><td>Same as PL</td></tr>
+        </table>
+      </div>
+      <div class="compare-col fol">
+        <h3 style="color:var(--accent)">Quantifiers</h3>
+        <table class="truth-table" style="font-size:0.85rem">
+          <tr><th>Quantifier</th><th>Symbol</th><th>Read as</th></tr>
+          <tr><td>Universal</td><td class="val-true">∀</td><td>"For all" (paired with ⇒)</td></tr>
+          <tr><td>Existential</td><td class="val-true">∃</td><td>"There exists" (paired with ∧)</td></tr>
+        </table>
+        <div class="playground" style="margin-top:0.5rem;border-left-color:var(--warn)">
+          <strong style="color:var(--warn)">Pairing Rule (EXAM CRITICAL!):</strong><br>
+          ∀ always pairs with ⇒ (implication)<br>
+          ∃ always pairs with ∧ (conjunction)<br>
+          <em style="color:var(--muted);font-size:0.85rem">Mixing these up is the #1 student mistake!</em>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>FOL Sentence Builder — Interactive</h2>
+    <p>Click symbols to build FOL sentences, or select an example:</p>
+    <div class="fol-symbols">
+      <span class="fol-sym" onclick="addFOL('∀')">∀<span class="sym-label">for all</span></span>
+      <span class="fol-sym" onclick="addFOL('∃')">∃<span class="sym-label">exists</span></span>
+      <span class="fol-sym" onclick="addFOL('¬')">¬<span class="sym-label">not</span></span>
+      <span class="fol-sym" onclick="addFOL('∧')">∧<span class="sym-label">and</span></span>
+      <span class="fol-sym" onclick="addFOL('∨')">∨<span class="sym-label">or</span></span>
+      <span class="fol-sym" onclick="addFOL('⇒')">⇒<span class="sym-label">implies</span></span>
+      <span class="fol-sym" onclick="addFOL('⇔')">⇔<span class="sym-label">iff</span></span>
+      <span class="fol-sym" onclick="addFOL('(')">(</span>
+      <span class="fol-sym" onclick="addFOL(')')">)</span>
+      <span class="fol-sym" onclick="addFOL(',')">,</span>
+      <span class="fol-sym" onclick="addFOL('x')">x<span class="sym-label">var</span></span>
+      <span class="fol-sym" onclick="addFOL('y')">y<span class="sym-label">var</span></span>
+    </div>
+    <div class="playground">
+      <label>Your FOL Sentence:</label>
+      <input type="text" id="folInput" placeholder="Type or click symbols above..." style="font-size:1.1rem">
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn btn-primary" onclick="parseFOL()">Parse & Explain</button>
+        <button class="btn btn-secondary" onclick="document.getElementById('folInput').value=''">Clear</button>
+      </div>
+    </div>
+    <div class="result" id="folParseResult" style="display:none"></div>
+  </div>
+
+  <div class="card">
+    <h2>Complex FOL Examples (From Lecture & Image)</h2>
+    <p>Click each example to see the English → FOL conversion with full parse tree:</p>
+    <div class="example-pills" id="folExPills">
+      <span class="pill active" onclick="showFOLEx(0,this)">All boys like Cricket</span>
+      <span class="pill" onclick="showFOLEx(1,this)">Some boys like Football</span>
+      <span class="pill" onclick="showFOLEx(2,this)">Some girls hate Football</span>
+      <span class="pill" onclick="showFOLEx(3,this)">All girls love Pink</span>
+      <span class="pill" onclick="showFOLEx(4,this)">Every person who buys policy is smart</span>
+      <span class="pill" onclick="showFOLEx(5,this)">No person buys expensive policy</span>
+      <span class="pill" onclick="showFOLEx(6,this)">John's father loves everyone</span>
+      <span class="pill" onclick="showFOLEx(7,this)">All students who study pass exam</span>
+    </div>
+    <div id="folExArea"></div>
+  </div>
+</div>
+
+<!-- ============ RESOLUTION ============ -->
+<div class="section" id="sec-resolution">
+  <div class="card">
+    <h2>Resolution Proof Engine</h2>
+    <p>The Resolution algorithm proves statements by <strong>contradiction</strong>: assume the negation, convert to CNF, resolve until empty clause.</p>
+
+    <div class="playground">
+      <strong>Steps:</strong>
+      <div class="result">
+<div class="step">1. Given: KB (knowledge base) and goal α to prove</div>
+<div class="step">2. <span class="neg">Negate the goal</span>: Add ¬α to the clauses</div>
+<div class="step">3. <span class="rule-name">Convert to CNF</span>: Replace ⇒ with ¬P ∨ Q, distribute ∨ over ∧</div>
+<div class="step">4. <span class="highlight">Resolve</span>: Find complementary literals (P and ¬P), cancel them</div>
+<div class="step">5. If <span class="highlight">EMPTY CLAUSE {}</span> is derived → CONTRADICTION → α is <span class="highlight">PROVED!</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Resolution — Step-by-Step Demos</h2>
+    <div class="example-pills">
+      <span class="pill active" onclick="showResolution(0,this)">Rahul Studies → Passes</span>
+      <span class="pill" onclick="showResolution(1,this)">Rain → Road Slippery</span>
+      <span class="pill" onclick="showResolution(2,this)">John is Smart</span>
+      <span class="pill" onclick="showResolution(3,this)">West is Criminal</span>
+    </div>
+    <div class="result" id="resolutionResult"></div>
+  </div>
+
+  <div class="card">
+    <h2>Try Your Own Resolution Proof</h2>
+    <div class="playground">
+      <label>Enter clauses in CNF (one per line, use ~ for NOT, v for OR):</label>
+      <textarea id="resInput" placeholder="Example:
+~S v P
+S
+~P">~S v P
+S</textarea>
+      <label>Goal to prove (single literal):</label>
+      <input type="text" id="resGoal" placeholder="P" value="P">
+      <button class="btn btn-primary" onclick="runResolution()">Prove by Resolution</button>
+    </div>
+    <div class="result" id="resCustomResult" style="display:none"></div>
+  </div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
