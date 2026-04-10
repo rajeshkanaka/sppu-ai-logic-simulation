@@ -15,6 +15,7 @@
   <button onclick="showSection('inference')">Inference Rules</button>
   <button onclick="showSection('fol')">FOL Builder</button>
   <button onclick="showSection('resolution')">Resolution</button>
+  <button onclick="showSection('test')" class="nav-test">📝 Test</button>
 </nav>
 
 <!-- ============ HOME ============ -->
@@ -339,6 +340,105 @@ S</textarea>
     </div>
     <div class="result" id="resCustomResult" style="display:none"></div>
   </div>
+</div>
+
+<!-- ============ TEST ============ -->
+<div class="section" id="sec-test">
+
+  <!-- Screen 1: Login -->
+  <div class="test-screen active" id="test-screen-login">
+    <div class="card login-card">
+      <div class="login-header">
+        <h2>📝 FOL & Theorem Proving — Class Test</h2>
+        <p>SPPU TE Comp AI · 310253 · Unit 4</p>
+        <div class="login-meta">
+          <span class="badge">15 Questions</span>
+          <span class="badge">MCQ</span>
+          <span class="badge">Auto-Graded</span>
+        </div>
+      </div>
+      <div class="playground login-playground">
+        <label>Roll Number</label>
+        <input type="text" id="loginRollNo" placeholder="e.g. 42" autocomplete="off">
+        <label>Full Name</label>
+        <input type="text" id="loginName" placeholder="e.g. Rahul Sharma" autocomplete="off">
+        <label>Password</label>
+        <input type="password" id="loginPassword" placeholder="Default password" autocomplete="off">
+        <div id="loginError" class="login-error" style="display:none"></div>
+        <button class="btn btn-primary btn-block" onclick="handleTestLogin()">Start Test →</button>
+        <p class="login-note">Default password: <code>abcd</code> · All fields required</p>
+      </div>
+      <div class="playground login-rules">
+        <strong>📖 Instructions</strong>
+        <ul>
+          <li>There are <strong>15 multiple-choice questions</strong> from the FOL & Theorem Proving notes.</li>
+          <li>Each question has exactly <strong>one correct answer</strong>.</li>
+          <li>You may navigate with <strong>Previous / Next</strong> buttons.</li>
+          <li>Click <strong>Submit Test</strong> when done — you will see your score and a per-question review.</li>
+          <li>Passing score: <strong>60% (9 / 15)</strong>.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Screen 2: Quiz -->
+  <div class="test-screen" id="test-screen-quiz">
+    <div class="card quiz-card">
+      <div class="quiz-header">
+        <div class="quiz-student" id="quizStudent"></div>
+        <div class="quiz-progress-wrap">
+          <div class="quiz-progress-label">
+            Question <span id="quizCurrentNum">1</span> of <span id="quizTotalNum">15</span>
+          </div>
+          <div class="quiz-progress-bar"><div class="quiz-progress-fill" id="quizProgressFill"></div></div>
+        </div>
+      </div>
+
+      <div class="quiz-question" id="quizQuestionText"></div>
+      <div class="quiz-options" id="quizOptions"></div>
+
+      <div class="quiz-nav">
+        <button class="btn btn-secondary" onclick="prevTestQuestion()" id="quizPrevBtn">← Previous</button>
+        <button class="btn btn-secondary" onclick="showQuizOverview()">📋 Overview</button>
+        <button class="btn btn-primary" onclick="nextTestQuestion()" id="quizNextBtn">Next →</button>
+      </div>
+
+      <div class="quiz-overview" id="quizOverview" style="display:none">
+        <strong>Overview — click any number to jump:</strong>
+        <div class="quiz-overview-grid" id="quizOverviewGrid"></div>
+        <button class="btn btn-primary btn-block" onclick="submitTest()">Submit Test ✓</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Screen 3: Result -->
+  <div class="test-screen" id="test-screen-result">
+    <div class="card result-card-top">
+      <div class="result-header">
+        <h2>🎯 Test Complete</h2>
+        <div class="result-student" id="resultStudent"></div>
+      </div>
+      <div class="score-display">
+        <div class="score-badge" id="scoreBadge"></div>
+        <div class="score-summary">
+          <div><span class="score-correct">✓ Correct: <strong id="scoreCorrect">0</strong></span></div>
+          <div><span class="score-wrong">✗ Wrong: <strong id="scoreWrong">0</strong></span></div>
+          <div><span class="score-unanswered">◯ Unanswered: <strong id="scoreUnanswered">0</strong></span></div>
+          <div class="score-percent" id="scorePercent"></div>
+        </div>
+      </div>
+      <div class="result-actions">
+        <button class="btn btn-primary" onclick="retakeTest()">🔄 Retake Test</button>
+        <button class="btn btn-secondary" onclick="logoutTest()">🚪 Logout</button>
+      </div>
+    </div>
+    <div class="card">
+      <h2>📋 Detailed Review</h2>
+      <p>Here is every question with your answer, the correct answer, and an explanation.</p>
+      <div id="resultBreakdown"></div>
+    </div>
+  </div>
+
 </div>
 
 <script src="app.js"></script>

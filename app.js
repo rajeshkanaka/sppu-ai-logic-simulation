@@ -1023,4 +1023,508 @@ document.addEventListener('DOMContentLoaded', function() {
       if (firstResPill) showResolution(0, firstResPill);
     }
   }
+
+  // Restore any in-progress test session
+  restoreTestSession();
 });
+
+// ==================== TEST MODULE ====================
+// 15 MCQs drawn directly from FOL_Theorem_Proving_Made_Simple.md
+// Covers: PL vs FOL, vocabulary, quantifiers, golden pairing,
+// easy/medium/hard translations, De Morgan, CNF equivalence,
+// unification, inference rules, and the West-is-Criminal proof.
+
+var TEST_QUESTIONS = [
+  {
+    q: "Why was First-Order Logic (FOL) developed as an extension of Propositional Logic (PL)?",
+    options: [
+      "PL uses more memory than FOL",
+      "PL cannot talk about objects, properties, relations, or general rules like \"all students\"",
+      "FOL is faster to compute on modern hardware",
+      "FOL removes the need for logical connectives"
+    ],
+    answer: 1,
+    explain: "PL treats each fact as a black box (P, Q, R). FOL adds objects, predicates, functions, and quantifiers so ONE sentence can cover infinitely many cases. (Notes §1)"
+  },
+  {
+    q: "In the FOL expression Loves(John, Mary), what is 'John'?",
+    options: [
+      "A variable",
+      "A predicate",
+      "A constant",
+      "A function"
+    ],
+    answer: 2,
+    explain: "'John' names one specific object in the world, so it is a constant. Constants start with a CapitalLetter. (Notes §2, Block 1)"
+  },
+  {
+    q: "What is the KEY difference between a predicate and a function in FOL?",
+    options: [
+      "Predicates use uppercase, functions use lowercase",
+      "A predicate returns True or False; a function returns an object",
+      "Predicates take one argument; functions take many arguments",
+      "There is no difference — they are the same thing"
+    ],
+    answer: 1,
+    explain: "Student(John) is a predicate — asks a yes/no question. Father(John) is a function — returns the person who is John's father. (Notes §2, Block 4)"
+  },
+  {
+    q: "In FOL, the universal quantifier ∀ is almost always paired with which connective?",
+    options: [
+      "∧ (AND)",
+      "∨ (OR)",
+      "⇒ (IMPLIES)",
+      "⇔ (IF AND ONLY IF)"
+    ],
+    answer: 2,
+    explain: "\"All birds fly\" → ∀x: Bird(x) ⇒ Fly(x). Pairing ∀ with ∧ would claim EVERYTHING in the universe is both a bird and flies. (Notes §4, Golden Rule)"
+  },
+  {
+    q: "In FOL, the existential quantifier ∃ is almost always paired with which connective?",
+    options: [
+      "⇒ (IMPLIES)",
+      "∧ (AND)",
+      "⇔ (IF AND ONLY IF)",
+      "¬ (NOT)"
+    ],
+    answer: 1,
+    explain: "\"Some birds are blue\" → ∃x: Bird(x) ∧ Blue(x). Pairing ∃ with ⇒ gives vacuous truth (true even for rocks) and says nothing useful. (Notes §4, Golden Rule)"
+  },
+  {
+    q: "Which is the correct FOL translation of \"All dogs bark\"?",
+    options: [
+      "∃x: Dog(x) ∧ Bark(x)",
+      "∀x: Dog(x) ∧ Bark(x)",
+      "∀x: Dog(x) ⇒ Bark(x)",
+      "∀x: Bark(x) ⇒ Dog(x)"
+    ],
+    answer: 2,
+    explain: "\"All\" → ∀, which pairs with ⇒. Read: \"For every x, if x is a dog, then x barks.\" (Notes §7, Medium)"
+  },
+  {
+    q: "Which is the correct FOL translation of \"Some students are lazy\"?",
+    options: [
+      "∀x: Student(x) ⇒ Lazy(x)",
+      "∃x: Student(x) ∧ Lazy(x)",
+      "∃x: Student(x) ⇒ Lazy(x)",
+      "∀x: Student(x) ∧ Lazy(x)"
+    ],
+    answer: 1,
+    explain: "\"Some\" → ∃, which pairs with ∧. Read: \"There exists some x such that x is a student AND x is lazy.\" (Notes §7, Medium)"
+  },
+  {
+    q: "Which is a correct FOL translation of \"No fish can fly\"?",
+    options: [
+      "∃x: Fish(x) ∧ CanFly(x)",
+      "∀x: Fish(x) ∧ ¬CanFly(x)",
+      "¬∃x: Fish(x) ∧ CanFly(x)",
+      "∃x: Fish(x) ⇒ ¬CanFly(x)"
+    ],
+    answer: 2,
+    explain: "\"No\" = negation of exists. Equivalent form: ∀x: Fish(x) ⇒ ¬CanFly(x). This uses De Morgan for quantifiers. (Notes §7, §16)"
+  },
+  {
+    q: "Which is the correct FOL translation of \"Every student has a teacher\"?",
+    options: [
+      "∃y ∀x: Teacher(y) ∧ Teaches(y, x)",
+      "∀x: Student(x) ⇒ ∃y: Teacher(y) ∧ Teaches(y, x)",
+      "∀x ∀y: Student(x) ∧ Teacher(y) ⇒ Teaches(y, x)",
+      "∃x ∃y: Student(x) ∧ Teacher(y) ∧ Teaches(y, x)"
+    ],
+    answer: 1,
+    explain: "Every student (∀ with ⇒) has SOME teacher (∃ with ∧). Order matters — different students can have different teachers. Option A would mean ONE teacher teaches everyone. (Notes §7, Hard)"
+  },
+  {
+    q: "Which FOL expression best captures \"Everyone loves their mother\" using a function?",
+    options: [
+      "∀x: Person(x) ⇒ Loves(x, Mother(x))",
+      "∀x ∀y: Person(x) ∧ Mother(y, x) ⇒ Loves(x, y)",
+      "∃x: Person(x) ∧ Loves(x, Mother)",
+      "∀x: Loves(x, Mother)"
+    ],
+    answer: 0,
+    explain: "Each person has exactly ONE mother, so Mother(x) is a function that returns the mother object directly. This is where functions shine. (Notes §7, Hard)"
+  },
+  {
+    q: "Which of the following is equivalent to ¬∀x P(x)?",
+    options: [
+      "∀x ¬P(x)",
+      "∃x ¬P(x)",
+      "¬∃x P(x)",
+      "∀x P(x)"
+    ],
+    answer: 1,
+    explain: "De Morgan for quantifiers: \"It is not the case that all have P\" = \"At least one does not have P\" = ∃x ¬P(x). (Notes §16)"
+  },
+  {
+    q: "The implication A ⇒ B is logically equivalent to:",
+    options: [
+      "A ∧ B",
+      "¬A ∧ B",
+      "¬A ∨ B",
+      "A ∨ ¬B"
+    ],
+    answer: 2,
+    explain: "This is THE must-know equivalence — used in every CNF conversion. \"A implies B\" = \"either A is false, or B is true.\" (Notes §13 Step 2, §16)"
+  },
+  {
+    q: "What is the Most General Unifier for Likes(x, Cricket) and Likes(John, Cricket)?",
+    options: [
+      "{x/Cricket}",
+      "{x/John}",
+      "{John/x}",
+      "They cannot be unified"
+    ],
+    answer: 1,
+    explain: "Substitute the variable x with the constant John. The second arguments (Cricket, Cricket) already match. Notation {x/John} reads as \"x is replaced by John.\" (Notes §10)"
+  },
+  {
+    q: "Given A ⇒ B and A, which inference rule lets you conclude B?",
+    options: [
+      "Modus Tollens",
+      "Modus Ponens",
+      "Resolution",
+      "And-Elimination"
+    ],
+    answer: 1,
+    explain: "Modus Ponens: from \"A implies B\" and \"A is true,\" conclude \"B is true.\" Modus Tollens instead uses ¬B to conclude ¬A. (Notes §11)"
+  },
+  {
+    q: "In the classic \"West is Criminal\" theorem-proving exercise, what statement is the GOAL being proved from the knowledge base?",
+    options: [
+      "American(West)",
+      "Hostile(Nono)",
+      "Criminal(West)",
+      "Missile(M1)"
+    ],
+    answer: 2,
+    explain: "The goal is Criminal(West). Options A, B, D are facts/sub-goals used during the proof. The final derivation applies the rule: American ∧ Weapon ∧ Sells ∧ Hostile ⇒ Criminal. (Notes §15)"
+  }
+];
+
+var LS_SESSION = 'fol_test_session_v1';
+var LS_ATTEMPTS = 'fol_test_attempts_v1';
+
+var testState = {
+  student: null,      // {rollNo, name, loginAt}
+  currentQ: 0,
+  answers: new Array(TEST_QUESTIONS.length).fill(null),
+  submitted: false
+};
+
+// ---- DOM helpers (safe clearing) ----
+function clearEl(el) {
+  while (el && el.firstChild) el.removeChild(el.firstChild);
+}
+
+// ---- Screen switching (internal to the Test section) ----
+function showTestScreen(name) {
+  ['login', 'quiz', 'result'].forEach(function(s) {
+    var el = document.getElementById('test-screen-' + s);
+    if (el) el.classList.toggle('active', s === name);
+  });
+  window.scrollTo(0, 0);
+}
+
+// ---- Login ----
+function handleTestLogin() {
+  var rollNo = (document.getElementById('loginRollNo').value || '').trim();
+  var name = (document.getElementById('loginName').value || '').trim();
+  var password = document.getElementById('loginPassword').value || '';
+  var errorEl = document.getElementById('loginError');
+
+  function showErr(msg) {
+    errorEl.textContent = msg;
+    errorEl.style.display = 'block';
+  }
+
+  if (!rollNo || !name || !password) {
+    showErr('All fields are required.');
+    return;
+  }
+  if (password !== 'abcd') {
+    showErr('Invalid password. The default password is "abcd".');
+    return;
+  }
+
+  errorEl.style.display = 'none';
+  testState.student = { rollNo: rollNo, name: name, loginAt: new Date().toISOString() };
+  testState.currentQ = 0;
+  testState.answers = new Array(TEST_QUESTIONS.length).fill(null);
+  testState.submitted = false;
+
+  try { localStorage.setItem(LS_SESSION, JSON.stringify(testState)); } catch (e) {}
+
+  startQuiz();
+}
+
+function startQuiz() {
+  document.getElementById('quizTotalNum').textContent = TEST_QUESTIONS.length;
+  var studentEl = document.getElementById('quizStudent');
+  clearEl(studentEl);
+  var strongEl = document.createElement('strong');
+  strongEl.textContent = testState.student.name;
+  studentEl.appendChild(strongEl);
+  studentEl.appendChild(document.createTextNode(' · Roll ' + testState.student.rollNo));
+  document.getElementById('quizOverview').style.display = 'none';
+  renderTestQuestion();
+  showTestScreen('quiz');
+}
+
+// ---- Render current question ----
+function renderTestQuestion() {
+  var i = testState.currentQ;
+  var q = TEST_QUESTIONS[i];
+  document.getElementById('quizCurrentNum').textContent = (i + 1);
+  document.getElementById('quizQuestionText').textContent = (i + 1) + '. ' + q.q;
+
+  var fillPct = ((i + 1) / TEST_QUESTIONS.length) * 100;
+  document.getElementById('quizProgressFill').style.width = fillPct + '%';
+
+  var optsContainer = document.getElementById('quizOptions');
+  clearEl(optsContainer);
+  var letters = ['A', 'B', 'C', 'D'];
+  q.options.forEach(function(optText, optIdx) {
+    var optBtn = document.createElement('div');
+    optBtn.className = 'quiz-option';
+    if (testState.answers[i] === optIdx) optBtn.classList.add('selected');
+    optBtn.onclick = function() { selectTestOption(optIdx); };
+
+    var letter = document.createElement('div');
+    letter.className = 'opt-letter';
+    letter.textContent = letters[optIdx];
+
+    var text = document.createElement('div');
+    text.className = 'opt-text';
+    text.textContent = optText;
+
+    optBtn.appendChild(letter);
+    optBtn.appendChild(text);
+    optsContainer.appendChild(optBtn);
+  });
+
+  document.getElementById('quizPrevBtn').disabled = (i === 0);
+  var nextBtn = document.getElementById('quizNextBtn');
+  if (i === TEST_QUESTIONS.length - 1) {
+    nextBtn.textContent = 'Review →';
+  } else {
+    nextBtn.textContent = 'Next →';
+  }
+}
+
+function selectTestOption(optIdx) {
+  testState.answers[testState.currentQ] = optIdx;
+  try { localStorage.setItem(LS_SESSION, JSON.stringify(testState)); } catch (e) {}
+  renderTestQuestion();
+}
+
+function nextTestQuestion() {
+  if (testState.currentQ < TEST_QUESTIONS.length - 1) {
+    testState.currentQ++;
+    renderTestQuestion();
+  } else {
+    showQuizOverview();
+  }
+}
+
+function prevTestQuestion() {
+  if (testState.currentQ > 0) {
+    testState.currentQ--;
+    renderTestQuestion();
+  }
+}
+
+function showQuizOverview() {
+  var grid = document.getElementById('quizOverviewGrid');
+  clearEl(grid);
+  for (var i = 0; i < TEST_QUESTIONS.length; i++) {
+    (function(idx) {
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.textContent = (idx + 1);
+      if (testState.answers[idx] !== null) btn.classList.add('answered');
+      if (idx === testState.currentQ) btn.classList.add('current');
+      btn.onclick = function() {
+        testState.currentQ = idx;
+        document.getElementById('quizOverview').style.display = 'none';
+        renderTestQuestion();
+      };
+      grid.appendChild(btn);
+    })(i);
+  }
+  document.getElementById('quizOverview').style.display = 'block';
+  document.getElementById('quizOverview').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+// ---- Submit & Result ----
+function submitTest() {
+  var unanswered = testState.answers.filter(function(a) { return a === null; }).length;
+  if (unanswered > 0) {
+    var ok = confirm('You have ' + unanswered + ' unanswered question(s). Submit anyway?');
+    if (!ok) return;
+  } else {
+    var ok2 = confirm('Submit your test? You will not be able to change answers after this.');
+    if (!ok2) return;
+  }
+
+  testState.submitted = true;
+
+  // Compute score
+  var correct = 0, wrong = 0, skipped = 0;
+  testState.answers.forEach(function(a, i) {
+    if (a === null) skipped++;
+    else if (a === TEST_QUESTIONS[i].answer) correct++;
+    else wrong++;
+  });
+
+  var attempt = {
+    rollNo: testState.student.rollNo,
+    name: testState.student.name,
+    score: correct,
+    total: TEST_QUESTIONS.length,
+    correct: correct,
+    wrong: wrong,
+    skipped: skipped,
+    answers: testState.answers.slice(),
+    submittedAt: new Date().toISOString()
+  };
+  try {
+    var arr = JSON.parse(localStorage.getItem(LS_ATTEMPTS) || '[]');
+    arr.push(attempt);
+    localStorage.setItem(LS_ATTEMPTS, JSON.stringify(arr));
+  } catch (e) {}
+
+  renderTestResult(correct, wrong, skipped);
+  showTestScreen('result');
+}
+
+function renderTestResult(correct, wrong, skipped) {
+  var total = TEST_QUESTIONS.length;
+  var pct = Math.round((correct / total) * 100);
+  var passed = pct >= 60;
+
+  var studentEl = document.getElementById('resultStudent');
+  clearEl(studentEl);
+  studentEl.appendChild(document.createTextNode('Student: '));
+  var sName = document.createElement('strong');
+  sName.textContent = testState.student.name;
+  studentEl.appendChild(sName);
+  studentEl.appendChild(document.createTextNode(' · Roll ' + testState.student.rollNo));
+
+  var badge = document.getElementById('scoreBadge');
+  badge.textContent = correct + ' / ' + total;
+  badge.className = 'score-badge ' + (passed ? 'pass' : 'fail');
+
+  document.getElementById('scoreCorrect').textContent = correct;
+  document.getElementById('scoreWrong').textContent = wrong;
+  document.getElementById('scoreUnanswered').textContent = skipped;
+  document.getElementById('scorePercent').textContent = pct + '% · ' + (passed ? 'PASS ✓' : 'FAIL ✗');
+
+  var breakdown = document.getElementById('resultBreakdown');
+  clearEl(breakdown);
+  var letters = ['A', 'B', 'C', 'D'];
+
+  TEST_QUESTIONS.forEach(function(q, i) {
+    var user = testState.answers[i];
+    var isCorrect = (user !== null && user === q.answer);
+    var isSkipped = (user === null);
+
+    var item = document.createElement('div');
+    item.className = 'review-item ' + (isSkipped ? 'skipped' : (isCorrect ? 'correct' : 'wrong'));
+
+    var qRow = document.createElement('div');
+    qRow.className = 'review-q';
+    var badgeEl = document.createElement('span');
+    badgeEl.className = 'review-badge ' + (isSkipped ? 'sk' : (isCorrect ? 'ok' : 'ng'));
+    badgeEl.textContent = isSkipped ? '◯' : (isCorrect ? '✓' : '✗');
+    qRow.appendChild(badgeEl);
+    var qText = document.createElement('span');
+    qText.textContent = 'Q' + (i + 1) + '. ' + q.q;
+    qRow.appendChild(qText);
+    item.appendChild(qRow);
+
+    var userRow = document.createElement('div');
+    userRow.className = 'review-answer-row user';
+    var userLabel = document.createElement('span');
+    userLabel.className = 'label';
+    userLabel.textContent = 'Your answer:';
+    userRow.appendChild(userLabel);
+    var userAns = document.createElement('span');
+    userAns.className = 'answer-text';
+    userAns.textContent = isSkipped ? '(not answered)' : (letters[user] + '. ' + q.options[user]);
+    userRow.appendChild(userAns);
+    item.appendChild(userRow);
+
+    if (!isCorrect) {
+      var corrRow = document.createElement('div');
+      corrRow.className = 'review-answer-row correct-ans';
+      var corrLabel = document.createElement('span');
+      corrLabel.className = 'label';
+      corrLabel.textContent = 'Correct:';
+      corrRow.appendChild(corrLabel);
+      var corrAns = document.createElement('span');
+      corrAns.className = 'answer-text';
+      corrAns.textContent = letters[q.answer] + '. ' + q.options[q.answer];
+      corrRow.appendChild(corrAns);
+      item.appendChild(corrRow);
+    }
+
+    var explain = document.createElement('div');
+    explain.className = 'review-explain';
+    explain.textContent = q.explain;
+    item.appendChild(explain);
+
+    breakdown.appendChild(item);
+  });
+}
+
+function retakeTest() {
+  if (!confirm('Reset your answers and retake the test?')) return;
+  testState.currentQ = 0;
+  testState.answers = new Array(TEST_QUESTIONS.length).fill(null);
+  testState.submitted = false;
+  try { localStorage.setItem(LS_SESSION, JSON.stringify(testState)); } catch (e) {}
+  startQuiz();
+}
+
+function logoutTest() {
+  testState.student = null;
+  testState.currentQ = 0;
+  testState.answers = new Array(TEST_QUESTIONS.length).fill(null);
+  testState.submitted = false;
+  try { localStorage.removeItem(LS_SESSION); } catch (e) {}
+  document.getElementById('loginRollNo').value = '';
+  document.getElementById('loginName').value = '';
+  document.getElementById('loginPassword').value = '';
+  document.getElementById('loginError').style.display = 'none';
+  showTestScreen('login');
+}
+
+function restoreTestSession() {
+  try {
+    var raw = localStorage.getItem(LS_SESSION);
+    if (!raw) return;
+    var saved = JSON.parse(raw);
+    if (!saved || !saved.student) return;
+    // Migration guard: if saved answers length doesn't match current test, reset
+    if (!Array.isArray(saved.answers) || saved.answers.length !== TEST_QUESTIONS.length) {
+      localStorage.removeItem(LS_SESSION);
+      return;
+    }
+    testState = saved;
+    if (testState.submitted) {
+      var correct = 0, wrong = 0, skipped = 0;
+      testState.answers.forEach(function(a, i) {
+        if (a === null) skipped++;
+        else if (a === TEST_QUESTIONS[i].answer) correct++;
+        else wrong++;
+      });
+      renderTestResult(correct, wrong, skipped);
+      showTestScreen('result');
+    } else {
+      startQuiz();
+    }
+  } catch (e) {
+    try { localStorage.removeItem(LS_SESSION); } catch (e2) {}
+  }
+}
