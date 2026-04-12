@@ -16,9 +16,8 @@
 <nav class="topnav" id="topnav">
   <button class="active" onclick="showSection('home')">Home</button>
   <button onclick="showSection('plvsfol')">PL vs FOL</button>
-  <button onclick="showSection('inference')">Inference Rules</button>
   <button onclick="showSection('fol')">FOL Builder</button>
-  <button onclick="showSection('resolution')">Resolution</button>
+  <button onclick="showSection('proving')">Theorem Proving</button>
   <button onclick="showSection('test')" class="nav-test">📝 Test</button>
 </nav>
 
@@ -155,71 +154,6 @@
   </div>
 </div>
 
-<!-- ============ INFERENCE RULES ============ -->
-<div class="section" id="sec-inference">
-  <div class="card">
-    <h2>Inference Rules — Interactive Demos</h2>
-    <p>Click any rule to see an animated step-by-step proof. Then try your own examples!</p>
-
-    <div class="rule-grid" id="ruleGrid">
-      <div class="rule-card active" onclick="selectRule('mp',this)">
-        <div class="rule-title">Modus Ponens</div>
-        <div class="rule-formula">A ⇒ B, A ∴ B</div>
-        <div class="rule-desc">If A implies B and A is true, then B is true</div>
-      </div>
-      <div class="rule-card" onclick="selectRule('mt',this)">
-        <div class="rule-title">Modus Tollens</div>
-        <div class="rule-formula">A ⇒ B, ¬B ∴ ¬A</div>
-        <div class="rule-desc">If A implies B and B is false, then A is false</div>
-      </div>
-      <div class="rule-card" onclick="selectRule('ai',this)">
-        <div class="rule-title">And-Introduction</div>
-        <div class="rule-formula">A, B ∴ A ∧ B</div>
-        <div class="rule-desc">If A is true and B is true, then A AND B is true</div>
-      </div>
-      <div class="rule-card" onclick="selectRule('ae',this)">
-        <div class="rule-title">And-Elimination</div>
-        <div class="rule-formula">A ∧ B ∴ A (or B)</div>
-        <div class="rule-desc">If A AND B is true, then A is true individually</div>
-      </div>
-      <div class="rule-card" onclick="selectRule('oi',this)">
-        <div class="rule-title">Or-Introduction</div>
-        <div class="rule-formula">A ∴ A ∨ B</div>
-        <div class="rule-desc">If A is true, then A OR B is true (for any B)</div>
-      </div>
-      <div class="rule-card" onclick="selectRule('res',this)">
-        <div class="rule-title">Resolution</div>
-        <div class="rule-formula">A ∨ B, ¬A ∨ C ∴ B ∨ C</div>
-        <div class="rule-desc">Cancel complementary literals, combine the rest</div>
-      </div>
-    </div>
-  </div>
-
-  <div class="card">
-    <h2 id="demoTitle">Live Demo: Modus Ponens</h2>
-    <div class="example-pills" id="demoPills"></div>
-    <div class="result" id="demoResult"></div>
-    <div class="playground" style="margin-top:1rem">
-      <strong>Try Your Own:</strong>
-      <div id="customInputs"></div>
-      <button class="btn btn-primary" onclick="runCustom()" style="margin-top:0.5rem">Run Inference</button>
-      <div class="result" id="customResult" style="display:none"></div>
-    </div>
-  </div>
-
-  <div class="card">
-    <h2>Combined Inference — Chain Proof Demo</h2>
-    <p>See how multiple rules combine to prove complex theorems:</p>
-    <div class="example-pills">
-      <span class="pill active" onclick="showChainProof(0,this)">Rain → Slippery Road</span>
-      <span class="pill" onclick="showChainProof(1,this)">Rahul Respects Sunita</span>
-      <span class="pill" onclick="showChainProof(2,this)">West is Criminal</span>
-      <span class="pill" onclick="showChainProof(3,this)">Not Sunny (Modus Tollens Chain)</span>
-    </div>
-    <div class="result" id="chainResult"></div>
-  </div>
-</div>
-
 <!-- ============ FOL BUILDER ============ -->
 <div class="section" id="sec-fol">
   <div class="card">
@@ -300,26 +234,124 @@
   </div>
 </div>
 
-<!-- ============ RESOLUTION ============ -->
-<div class="section" id="sec-resolution">
-  <div class="card">
-    <h2>Resolution Proof Engine</h2>
-    <p>The Resolution algorithm proves statements by <strong>contradiction</strong>: assume the negation, convert to CNF, resolve until empty clause.</p>
+<!-- ============ THEOREM PROVING ============ -->
+<div class="section" id="sec-proving">
 
-    <div class="playground">
-      <strong>Steps:</strong>
-      <div class="result">
-<div class="step">1. Given: KB (knowledge base) and goal α to prove</div>
-<div class="step">2. <span class="neg">Negate the goal</span>: Add ¬α to the clauses</div>
-<div class="step">3. <span class="rule-name">Convert to CNF</span>: Replace ⇒ with ¬P ∨ Q, distribute ∨ over ∧</div>
-<div class="step">4. <span class="highlight">Resolve</span>: Find complementary literals (P and ¬P), cancel them</div>
-<div class="step">5. If <span class="highlight">EMPTY CLAUSE {}</span> is derived → CONTRADICTION → α is <span class="highlight">PROVED!</span></div>
+  <!-- Card 1: The Big Picture -->
+  <div class="card">
+    <h2>Theorem Proving — The Big Picture</h2>
+    <p>Given some facts and rules (a <strong>Knowledge Base</strong>), can we <strong>prove</strong> that a new statement is true — without having been told it directly?</p>
+
+    <div class="concept-box concept-detective">
+      <div class="concept-icon">🕵️</div>
+      <div class="concept-body">
+        <strong>The Detective Analogy</strong>
+        <p>Sherlock Holmes knows: "The killer was left-handed" and "Watson is right-handed."
+        Nobody told Holmes that Watson is innocent — he <strong>derived</strong> it using logic. That's theorem proving.</p>
+      </div>
+    </div>
+
+    <div class="concept-box concept-formal">
+      <div class="concept-icon">📐</div>
+      <div class="concept-body">
+        <strong>Formal Definition</strong>
+        <p>Given: <strong>KB</strong> (knowledge base) and a statement <strong>α</strong><br>
+        Prove: <strong>KB ⊨ α</strong> — "In every world where KB is true, α is also true."<br>
+        We use <strong>inference rules</strong> to derive α step by step.</p>
       </div>
     </div>
   </div>
 
+  <!-- Card 2: Inference Rules Toolkit -->
   <div class="card">
-    <h2>Resolution — Step-by-Step Demos</h2>
+    <h2>Your Toolkit — The 6 Inference Rules</h2>
+    <p>These are the <strong>building blocks</strong> for every proof. Click any rule to see <strong>how it works</strong>, <strong>WHY it works</strong>, and <strong>try your own examples</strong>.</p>
+
+    <div class="rule-grid" id="ruleGrid">
+      <div class="rule-card active" onclick="selectRule('mp',this)">
+        <div class="rule-title">Modus Ponens</div>
+        <div class="rule-formula">A ⇒ B, A ∴ B</div>
+        <div class="rule-desc">If A implies B and A is true, then B is true</div>
+      </div>
+      <div class="rule-card" onclick="selectRule('mt',this)">
+        <div class="rule-title">Modus Tollens</div>
+        <div class="rule-formula">A ⇒ B, ¬B ∴ ¬A</div>
+        <div class="rule-desc">If A implies B and B is false, then A is false</div>
+      </div>
+      <div class="rule-card" onclick="selectRule('ai',this)">
+        <div class="rule-title">And-Introduction</div>
+        <div class="rule-formula">A, B ∴ A ∧ B</div>
+        <div class="rule-desc">If both A and B are true, then A AND B is true</div>
+      </div>
+      <div class="rule-card" onclick="selectRule('ae',this)">
+        <div class="rule-title">And-Elimination</div>
+        <div class="rule-formula">A ∧ B ∴ A (or B)</div>
+        <div class="rule-desc">From A AND B, extract either part individually</div>
+      </div>
+      <div class="rule-card" onclick="selectRule('oi',this)">
+        <div class="rule-title">Or-Introduction</div>
+        <div class="rule-formula">A ∴ A ∨ B</div>
+        <div class="rule-desc">If A is true, then A OR anything is also true</div>
+      </div>
+      <div class="rule-card" onclick="selectRule('res',this)">
+        <div class="rule-title">Resolution</div>
+        <div class="rule-formula">A ∨ B, ¬A ∨ C ∴ B ∨ C</div>
+        <div class="rule-desc">Cancel complementary literals, combine the rest</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Card 3: Rule Demo + WHY + Try Your Own -->
+  <div class="card">
+    <h2 id="demoTitle">Live Demo: Modus Ponens</h2>
+    <div class="example-pills" id="demoPills"></div>
+    <div class="result" id="demoResult"></div>
+
+    <!-- WHY box — populated by JS when a rule is selected -->
+    <div class="why-callout" id="ruleWhyBox" style="margin-top:1rem">
+      <div class="why-label">💡 WHY does this rule work?</div>
+      <div class="result" id="ruleWhyResult"></div>
+    </div>
+
+    <div class="playground" style="margin-top:1rem">
+      <strong>Try Your Own:</strong>
+      <div id="customInputs"></div>
+      <button class="btn btn-primary" onclick="runCustom()" style="margin-top:0.5rem">Run Inference</button>
+      <div class="result" id="customResult" style="display:none"></div>
+    </div>
+  </div>
+
+  <!-- Card 4: Combined Chain Proofs -->
+  <div class="card">
+    <h2>Combined Inference — Chain Proof Demo</h2>
+    <p>See how multiple rules <strong>combine together</strong> to prove complex theorems step by step:</p>
+    <div class="example-pills">
+      <span class="pill active" onclick="showChainProof(0,this)">Rain → Slippery Road</span>
+      <span class="pill" onclick="showChainProof(1,this)">Rahul Respects Sunita</span>
+      <span class="pill" onclick="showChainProof(2,this)">West is Criminal</span>
+      <span class="pill" onclick="showChainProof(3,this)">Not Sunny (Modus Tollens Chain)</span>
+    </div>
+    <div class="result" id="chainResult"></div>
+  </div>
+
+  <!-- Card 5: CNF Conversion -->
+  <div class="card">
+    <h2>CNF Conversion — The ONE Rule You Must Know</h2>
+    <p>Before using the Resolution algorithm, every statement must be converted to <strong>CNF (Conjunctive Normal Form)</strong> — a specific format that the algorithm can work with.</p>
+    <div class="result" id="cnfExplanationResult"></div>
+  </div>
+
+  <!-- Card 6: Resolution Concept -->
+  <div class="card">
+    <h2>Resolution — The Big Idea (Proof by Contradiction)</h2>
+    <p>Resolution is the <strong>most powerful</strong> theorem-proving technique. It works by <strong>assuming the opposite</strong> and showing it leads to an <strong>impossible situation</strong>.</p>
+    <div class="result" id="resolutionIntroResult"></div>
+  </div>
+
+  <!-- Card 7: Resolution Demos -->
+  <div class="card">
+    <h2>Resolution — Step-by-Step Demos (with WHY at every step)</h2>
+    <p>Click each demo. Every step is <strong>explained</strong> — no step is left without a WHY.</p>
     <div class="example-pills">
       <span class="pill active" onclick="showResolution(0,this)">Rahul Studies → Passes</span>
       <span class="pill" onclick="showResolution(1,this)">Rain → Road Slippery</span>
@@ -329,6 +361,7 @@
     <div class="result" id="resolutionResult"></div>
   </div>
 
+  <!-- Card 8: Try Your Own -->
   <div class="card">
     <h2>Try Your Own Resolution Proof</h2>
     <div class="playground">
@@ -344,6 +377,7 @@ S</textarea>
     </div>
     <div class="result" id="resCustomResult" style="display:none"></div>
   </div>
+
 </div>
 
 <!-- ============ TEST ============ -->

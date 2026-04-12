@@ -335,6 +335,76 @@ var ruleExamples = {
   }
 };
 
+var ruleWhyExplanations = {
+  mp: [
+    { text: 'WHY Modus Ponens Works', cls: 'rule-name' },
+    { text: 'Analogy: Think of a PROMISE.', cls: 'highlight' },
+    { text: 'Your mom says: "If you study, you will get ice cream."', cls: '' },
+    { text: 'You studied. She MUST give you ice cream.', cls: '' },
+    { text: 'The promise would be BROKEN otherwise.', cls: 'neg' },
+    { text: 'Validity: P => Q means Q is guaranteed whenever P is true.', cls: 'highlight' },
+    { text: 'If P is true and Q were false, then P => Q would be false — contradiction!', cls: '' },
+    { text: 'So Q MUST be true. That is Modus Ponens.', cls: 'highlight' },
+    { text: 'Common Mistake: Affirming the consequent — "Q is true, so P must be true."', cls: 'neg' },
+    { text: '"Ground is wet, so it must be raining" is INVALID. Maybe someone used a hose!', cls: 'neg' }
+  ],
+  mt: [
+    { text: 'WHY Modus Tollens Works', cls: 'rule-name' },
+    { text: 'Analogy: Reverse detective logic.', cls: 'highlight' },
+    { text: '"If it rained, the ground would be wet." The ground is DRY.', cls: '' },
+    { text: 'The effect did NOT happen, so the cause did NOT happen either.', cls: '' },
+    { text: 'Validity: P => Q is logically the same as ~Q => ~P (contrapositive).', cls: 'highlight' },
+    { text: 'If Q is false and P were true, then P => Q would be false — contradiction!', cls: '' },
+    { text: 'So P MUST be false. That is Modus Tollens.', cls: 'highlight' },
+    { text: 'Common Mistake: Confusing with the CONVERSE.', cls: 'neg' },
+    { text: '"If ground is wet, it rained" is the CONVERSE — this is NOT valid!', cls: 'neg' },
+    { text: 'Wet ground could mean sprinklers, not rain. Only the contrapositive is guaranteed.', cls: 'neg' }
+  ],
+  ai: [
+    { text: 'WHY And-Introduction Works', cls: 'rule-name' },
+    { text: 'Analogy: Packing a suitcase.', cls: 'highlight' },
+    { text: 'You have a shirt (true). You have pants (true).', cls: '' },
+    { text: 'You can pack BOTH into one suitcase — the combo exists because each piece exists.', cls: '' },
+    { text: 'Validity: If P is true and Q is true independently,', cls: 'highlight' },
+    { text: 'then (P AND Q) cannot be false — both conjuncts are satisfied.', cls: '' },
+    { text: 'This is the simplest rule, but critical for setting up Modus Ponens in proofs.', cls: 'highlight' },
+    { text: 'Common Mistake: Using And-Introduction when one fact is NOT proven.', cls: 'neg' },
+    { text: '"A is true, B might be true" does NOT give you (A AND B).', cls: 'neg' }
+  ],
+  ae: [
+    { text: 'WHY And-Elimination Works', cls: 'rule-name' },
+    { text: 'Analogy: Unpacking a gift box.', cls: 'highlight' },
+    { text: 'If the box contains a book AND a pen, you can take out just the book.', cls: '' },
+    { text: 'The items exist individually because the box guarantees BOTH are inside.', cls: '' },
+    { text: 'Validity: (P AND Q) means P is true AND Q is true.', cls: 'highlight' },
+    { text: 'By definition of AND, each part must hold. So extracting either is safe.', cls: '' },
+    { text: 'Common Mistake: Trying to apply And-Elimination to an OR statement.', cls: 'neg' },
+    { text: '"A OR B" does NOT let you conclude A! Only one of them needs to be true.', cls: 'neg' }
+  ],
+  oi: [
+    { text: 'WHY Or-Introduction Works', cls: 'rule-name' },
+    { text: 'Analogy: A safety net that never fails.', cls: 'highlight' },
+    { text: '"Is it raining OR is the moon made of cheese?" — YES, because it IS raining.', cls: '' },
+    { text: 'OR only needs ONE side to be true. The other side can be anything.', cls: '' },
+    { text: 'Validity: If P is true, then (P OR Q) is true regardless of Q.', cls: 'highlight' },
+    { text: 'Seems useless? It is CRITICAL for Resolution — you need OR clauses, and this builds them.', cls: 'highlight' },
+    { text: 'Common Mistake: Thinking Or-Introduction "weakens" your knowledge.', cls: 'neg' },
+    { text: 'It does — but intentionally! You trade precision for the OR form Resolution needs.', cls: 'neg' }
+  ],
+  res: [
+    { text: 'WHY Resolution Works', cls: 'rule-name' },
+    { text: 'Analogy: Two witnesses in court.', cls: 'highlight' },
+    { text: 'Witness 1: "Either the car was red OR it had a broken taillight."', cls: '' },
+    { text: 'Witness 2: "Either the car was NOT red OR the driver wore a hat."', cls: '' },
+    { text: '"Red" and "NOT red" cancel out — like +1 and -1.', cls: 'neg' },
+    { text: 'Result: "Either broken taillight OR driver wore hat."', cls: 'highlight' },
+    { text: 'Validity: In (A v B) and (~A v C), A must be true or false.', cls: 'highlight' },
+    { text: 'If A is true → from clause 2, C holds. If A is false → from clause 1, B holds.', cls: '' },
+    { text: 'Either way, (B v C) is guaranteed. The complementary literal is eliminated.', cls: '' },
+    { text: 'Common Mistake: Resolving literals that are NOT exact complements (e.g., A and ~B).', cls: 'neg' }
+  ]
+};
+
 var currentRule = 'mp';
 
 function selectRule(ruleId, el) {
@@ -356,6 +426,12 @@ function selectRule(ruleId, el) {
 
   showRuleExample(0, pills.querySelector('.pill'));
   buildCustomInputs(rule);
+
+  // Render WHY explanation
+  var whyData = ruleWhyExplanations[ruleId];
+  if (whyData) {
+    setStepsImmediate('ruleWhyResult', whyData);
+  }
 }
 
 function showRuleExample(idx, el) {
@@ -761,6 +837,57 @@ function showFOLEx(idx, el) {
   });
 }
 
+// ==================== RESOLUTION INTRO ====================
+var resolutionIntro = [
+  { text: '=== What is Resolution? A Detective\'s Strategy ===', cls: 'rule-name' },
+  { text: '', cls: '' },
+  { text: 'Imagine you are a LAWYER in court. You want to prove your client is innocent.', cls: '' },
+  { text: 'Your strategy: ASSUME the client is GUILTY. Then show that this assumption', cls: '' },
+  { text: 'leads to something IMPOSSIBLE -- a contradiction. If "guilty" creates a', cls: '' },
+  { text: 'contradiction, the assumption was WRONG, so the client MUST be innocent!', cls: '' },
+  { text: '', cls: '' },
+  { text: 'This is called PROOF BY CONTRADICTION (Reductio ad Absurdum).', cls: 'highlight' },
+  { text: 'Resolution uses EXACTLY this strategy to prove things in AI.', cls: '' },
+  { text: '', cls: '' },
+  { text: '--- The 5-Step Recipe ---', cls: 'rule-name' },
+  { text: '  1. Write down everything you KNOW (the Knowledge Base)', cls: '' },
+  { text: '  2. NEGATE the goal (assume the opposite of what you want to prove)', cls: 'neg' },
+  { text: '  3. Convert ALL sentences to CNF (OR-clauses joined by AND)', cls: '' },
+  { text: '  4. RESOLVE: Find complementary literals (P and ~P) and cancel them', cls: '' },
+  { text: '  5. If you reach {} (EMPTY CLAUSE) = CONTRADICTION = PROVED!', cls: 'highlight' },
+  { text: '', cls: '' },
+  { text: 'WHY does empty clause = proved?', cls: 'rule-name' },
+  { text: 'An empty clause means "nothing is true" -- that is impossible!', cls: '' },
+  { text: 'The ONLY new thing we added was the negated goal.', cls: '' },
+  { text: 'So the negated goal CAUSED the impossibility.', cls: '' },
+  { text: 'Therefore the negated goal is WRONG, and the original goal is TRUE.', cls: 'highlight' }
+];
+
+// ==================== CNF EXPLANATION ====================
+var cnfExplanation = [
+  { text: '=== CNF (Conjunctive Normal Form) Explained ===', cls: 'rule-name' },
+  { text: '', cls: '' },
+  { text: 'WHAT is CNF?', cls: 'rule-name' },
+  { text: '  CNF = AND of ORs. Example: (A v B) AND (~C v D) AND (E)', cls: '' },
+  { text: '  Each group in parentheses is called a CLAUSE (made of ORs).', cls: '' },
+  { text: '  The clauses are joined together by ANDs.', cls: '' },
+  { text: '  Resolution can ONLY work on individual OR-clauses, so we MUST convert first.', cls: '' },
+  { text: '', cls: '' },
+  { text: 'The ONE Rule You Must Know:', cls: 'rule-name' },
+  { text: '  A => B  is the SAME as  ~A v B', cls: 'highlight' },
+  { text: '  "If it rains, ground is wet" = "Either it is NOT raining, OR ground IS wet"', cls: '' },
+  { text: '  Both say the same thing! At any moment, at least one of these is true.', cls: '' },
+  { text: '', cls: '' },
+  { text: 'Worked Example:', cls: 'rule-name' },
+  { text: '  "If Rahul studies (S), he passes (P)"  =>  S => P  =>  ~S v P', cls: 'highlight' },
+  { text: '  NOTE: The ~S here comes from the implication rule, NOT from negating any goal!', cls: 'neg' },
+  { text: '', cls: '' },
+  { text: 'De Morgan\'s Law (for compound antecedents):', cls: 'rule-name' },
+  { text: '  ~(A AND B) = ~A OR ~B    (negate AND, flip to OR, negate each part)', cls: '' },
+  { text: '  ~(A OR B)  = ~A AND ~B   (negate OR, flip to AND, negate each part)', cls: '' },
+  { text: '  Example: (A AND B) => C  =  ~(A AND B) v C  =  ~A v ~B v C', cls: 'highlight' }
+];
+
 // ==================== RESOLUTION DEMOS ====================
 var resolutionDemos = [
   {
@@ -768,120 +895,293 @@ var resolutionDemos = [
     steps: [
       { text: '=== Resolution Proof: Prove "Rahul passes" ===', cls: 'rule-name' },
       { text: '', cls: '' },
-      { text: 'Knowledge Base:', cls: 'rule-name' },
-      { text: '  S1: S => P     (If studies, then passes)', cls: '' },
-      { text: '  S2: S          (Rahul studies)', cls: '' },
+
+      // --- Knowledge Base ---
+      { text: 'Knowledge Base (what we KNOW):', cls: 'rule-name' },
+      { text: '  S1: S => P     (If Rahul studies, then Rahul passes)', cls: '' },
+      { text: '  S2: S          (Rahul studies -- this is a FACT)', cls: '' },
+      { text: '  Goal: Prove P  (Rahul passes)', cls: 'highlight' },
       { text: '', cls: '' },
-      { text: 'Step 1: NEGATE the goal', cls: 'rule-name' },
-      { text: '  Goal: P (Rahul passes)', cls: '' },
-      { text: '  Add: ~P (assume Rahul does NOT pass)', cls: 'neg' },
+
+      // --- WHY WE NEGATE (extensive) ---
+      { text: '--- Step 1: NEGATE the Goal ---', cls: 'rule-name' },
       { text: '', cls: '' },
-      { text: 'Step 2: Convert to CNF', cls: 'rule-name' },
-      { text: '  C1: ~S v P     (S => P becomes ~S v P)', cls: '' },
-      { text: '  C2: S          (already in CNF)', cls: '' },
-      { text: '  C3: ~P         (negation of goal)', cls: 'neg' },
+      { text: 'WAIT -- why would we negate what we want to prove?! Let\'s understand:', cls: 'neg' },
       { text: '', cls: '' },
-      { text: 'Step 3: Resolve!', cls: 'rule-name' },
-      { text: '  Resolve C1 (~S v P) with C3 (~P) on P:', cls: '' },
+      { text: 'Think of it like a LAWYER in court:', cls: '' },
+      { text: '  You want to prove: "Rahul passes" (P)', cls: '' },
+      { text: '  Strategy: ASSUME the OPPOSITE -- "Rahul does NOT pass" (~P)', cls: '' },
+      { text: '  Then show this assumption leads to an IMPOSSIBLE situation.', cls: '' },
+      { text: '  If ~P creates impossibility, then ~P MUST be wrong.', cls: '' },
+      { text: '  If ~P is wrong, then P MUST be true!', cls: '' },
+      { text: '', cls: '' },
+      { text: 'Real-world analogy:', cls: 'rule-name' },
+      { text: '  Suppose you want to prove your friend was at home at 8pm.', cls: '' },
+      { text: '  Assume the opposite: "He was NOT at home."', cls: '' },
+      { text: '  But the CCTV shows him at home, his phone GPS shows home...', cls: '' },
+      { text: '  CONTRADICTION! So "not at home" is impossible. He WAS at home.', cls: '' },
+      { text: '', cls: '' },
+      { text: 'This is PROOF BY CONTRADICTION -- the backbone of Resolution!', cls: 'highlight' },
+      { text: '', cls: '' },
+      { text: '  So we ADD to our knowledge base:', cls: '' },
+      { text: '  ~P (Rahul does NOT pass) -- our temporary assumption', cls: 'neg' },
+      { text: '', cls: '' },
+
+      // --- WHY CNF (extensive) ---
+      { text: '--- Step 2: Convert to CNF ---', cls: 'rule-name' },
+      { text: '', cls: '' },
+      { text: 'WHAT is CNF? CNF = Conjunctive Normal Form', cls: '' },
+      { text: '  = Everything written as OR-clauses joined by AND', cls: '' },
+      { text: '  WHY? Because resolution can ONLY work with OR-clauses.', cls: '' },
+      { text: '  Think of it as: resolution needs a specific "fuel" to run.', cls: '' },
+      { text: '  That fuel is OR-clauses. So we must convert everything first.', cls: '' },
+      { text: '', cls: '' },
+      { text: 'Converting S1:  S => P  (If studies, then passes)', cls: 'rule-name' },
+      { text: '', cls: '' },
+      { text: '  THE GOLDEN RULE:  A => B  is the SAME as  ~A v B', cls: 'highlight' },
+      { text: '', cls: '' },
+      { text: '  Why does this work? Think about it:', cls: '' },
+      { text: '  "If it rains, the ground is wet" means:', cls: '' },
+      { text: '  "Either it is NOT raining, OR the ground IS wet."', cls: '' },
+      { text: '  At any given moment, at least one of these must be true!', cls: '' },
+      { text: '', cls: '' },
+      { text: '  So:  S => P  becomes  ~S v P', cls: 'highlight' },
+      { text: '', cls: '' },
+      { text: '  !!! WARNING -- COMMON CONFUSION !!!', cls: 'neg' },
+      { text: '  The ~S here has NOTHING to do with negating the goal!', cls: 'neg' },
+      { text: '  We negated P to get ~P (that is in clause C3 below).', cls: 'neg' },
+      { text: '  The ~S comes from the IMPLICATION CONVERSION RULE.', cls: 'neg' },
+      { text: '  A => B always gives ~A v B. So S => P gives ~S v P.', cls: 'neg' },
+      { text: '  These are TWO COMPLETELY DIFFERENT operations!', cls: 'neg' },
+      { text: '', cls: '' },
+      { text: 'Our clauses after CNF conversion:', cls: 'rule-name' },
+      { text: '  C1: ~S v P     (from S => P, using the golden rule)', cls: '' },
+      { text: '  C2: S          (already a simple clause, no conversion needed)', cls: '' },
+      { text: '  C3: ~P         (our negated goal from Step 1)', cls: 'neg' },
+      { text: '', cls: '' },
+
+      // --- WHY RESOLVE (extensive) ---
+      { text: '--- Step 3: RESOLVE! ---', cls: 'rule-name' },
+      { text: '', cls: '' },
+      { text: 'WHAT does "resolving" mean?', cls: '' },
+      { text: '  Resolution = finding a variable that appears POSITIVE in one clause', cls: '' },
+      { text: '  and NEGATIVE in another clause, then CANCELLING them.', cls: '' },
+      { text: '  Like +5 and -5 cancelling to give 0.', cls: '' },
+      { text: '  Like matter and antimatter annihilating each other.', cls: '' },
+      { text: '', cls: '' },
+      { text: 'Look at C1 and C3. Can you spot a match?', cls: 'rule-name' },
+      { text: '  C1: ~S v P     (P is POSITIVE here)', cls: '' },
+      { text: '  C3: ~P         (~P is NEGATIVE here)', cls: '' },
+      { text: '  YES! P appears positive in C1 and negative in C3!', cls: '' },
+      { text: '  They CANCEL each other. What is left in C1? Just ~S.', cls: '' },
+      { text: '', cls: '' },
+      { text: '  Resolve C1 (~S v P) with C3 (~P):', cls: '' },
       { text: '    P and ~P cancel out!', cls: 'neg' },
       { text: '    Result C4: ~S', cls: 'highlight' },
       { text: '', cls: '' },
-      { text: '  Resolve C4 (~S) with C2 (S) on S:', cls: '' },
+      { text: 'Now look at C4 and C2:', cls: 'rule-name' },
+      { text: '  C4: ~S         (S is NEGATIVE here)', cls: '' },
+      { text: '  C2: S          (S is POSITIVE here)', cls: '' },
+      { text: '  Another match! S and ~S cancel!', cls: '' },
+      { text: '', cls: '' },
+      { text: '  Resolve C4 (~S) with C2 (S):', cls: '' },
       { text: '    S and ~S cancel out!', cls: 'neg' },
       { text: '    Result: {} EMPTY CLAUSE!', cls: 'highlight' },
       { text: '', cls: '' },
-      { text: 'EMPTY CLAUSE = CONTRADICTION!', cls: 'highlight' },
-      { text: 'Our assumption (~P) was wrong.', cls: '' },
-      { text: 'Therefore P is TRUE: "Rahul passes"', cls: 'highlight' }
+
+      // --- WHY EMPTY CLAUSE = PROVED ---
+      { text: '--- What does {} mean? ---', cls: 'rule-name' },
+      { text: '', cls: '' },
+      { text: 'We got {} -- NOTHING left! An empty clause means "FALSE".', cls: '' },
+      { text: 'Our set of clauses is SELF-CONTRADICTORY.', cls: '' },
+      { text: '', cls: '' },
+      { text: 'But wait -- the original KB (S1, S2) was perfectly fine!', cls: '' },
+      { text: 'The ONLY thing we added was ~P (our assumption).', cls: '' },
+      { text: 'So ~P is what CAUSED the contradiction.', cls: '' },
+      { text: 'Therefore ~P is WRONG.', cls: 'neg' },
+      { text: 'Therefore P is TRUE!', cls: '' },
+      { text: '', cls: '' },
+      { text: 'PROVED: P is TRUE -- "Rahul passes the exam!"', cls: 'highlight' }
     ]
   },
+
   {
     name: "Rain -> Road Slippery",
     steps: [
       { text: '=== Resolution Proof: Prove "Road is slippery" ===', cls: 'rule-name' },
       { text: '', cls: '' },
-      { text: 'KB: P => Q, Q => R, P    Goal: R', cls: '' },
+
+      { text: 'Knowledge Base:', cls: 'rule-name' },
+      { text: '  S1: P => Q     (If it rains, ground gets wet)', cls: '' },
+      { text: '  S2: Q => R     (If ground is wet, road is slippery)', cls: '' },
+      { text: '  S3: P          (It IS raining -- fact)', cls: '' },
+      { text: '  Goal: Prove R  (Road is slippery)', cls: 'highlight' },
       { text: '', cls: '' },
-      { text: 'Step 1: Add ~R (negate goal)', cls: 'rule-name' },
+
+      // --- Step 1 ---
+      { text: '--- Step 1: NEGATE the Goal ---', cls: 'rule-name' },
+      { text: '  WHY? Proof by contradiction: assume the opposite, find impossibility.', cls: '' },
+      { text: '  We want to prove R. So assume ~R (road is NOT slippery).', cls: '' },
+      { text: '  If this leads to a contradiction, R must be true.', cls: '' },
+      { text: '  Add: ~R', cls: 'neg' },
       { text: '', cls: '' },
-      { text: 'Step 2: Convert to CNF', cls: 'rule-name' },
-      { text: '  C1: ~P v Q     (P => Q)', cls: '' },
-      { text: '  C2: ~Q v R     (Q => R)', cls: '' },
-      { text: '  C3: P', cls: '' },
-      { text: '  C4: ~R         (negation)', cls: 'neg' },
+
+      // --- Step 2 ---
+      { text: '--- Step 2: Convert to CNF ---', cls: 'rule-name' },
+      { text: '  Using A => B  =  ~A v B:', cls: '' },
+      { text: '  P => Q becomes ~P v Q (either NOT raining, or ground IS wet)', cls: '' },
+      { text: '  Q => R becomes ~Q v R (either ground NOT wet, or road IS slippery)', cls: '' },
+      { text: '  Remember: the ~P and ~Q here come from implication conversion,', cls: '' },
+      { text: '  NOT from negating the goal! Goal negation gave us ~R only.', cls: '' },
       { text: '', cls: '' },
-      { text: 'Step 3: Resolve', cls: 'rule-name' },
+      { text: '  C1: ~P v Q     (from P => Q)', cls: '' },
+      { text: '  C2: ~Q v R     (from Q => R)', cls: '' },
+      { text: '  C3: P          (fact)', cls: '' },
+      { text: '  C4: ~R         (negated goal)', cls: 'neg' },
+      { text: '', cls: '' },
+
+      // --- Step 3 ---
+      { text: '--- Step 3: Resolve (work backwards from the goal) ---', cls: 'rule-name' },
+      { text: '', cls: '' },
+      { text: '  Strategy: Start with ~R and find clauses containing R.', cls: '' },
+      { text: '', cls: '' },
+      { text: '  C2 has R (positive), C4 has ~R (negative). They match!', cls: '' },
       { text: '  Resolve C2 (~Q v R) with C4 (~R) on R:', cls: '' },
       { text: '    R and ~R cancel => C5: ~Q', cls: 'highlight' },
       { text: '', cls: '' },
+      { text: '  Now C1 has Q (positive), C5 has ~Q (negative). Match!', cls: '' },
       { text: '  Resolve C1 (~P v Q) with C5 (~Q) on Q:', cls: '' },
       { text: '    Q and ~Q cancel => C6: ~P', cls: 'highlight' },
       { text: '', cls: '' },
+      { text: '  Now C3 has P (positive), C6 has ~P (negative). Match!', cls: '' },
       { text: '  Resolve C3 (P) with C6 (~P) on P:', cls: '' },
       { text: '    P and ~P cancel => {} EMPTY CLAUSE!', cls: 'highlight' },
       { text: '', cls: '' },
-      { text: 'PROVED: R is TRUE. "Road is slippery"', cls: 'highlight' }
+      { text: 'Contradiction! ~R caused it, so ~R is wrong.', cls: '' },
+      { text: 'PROVED: R is TRUE -- "Road IS slippery"', cls: 'highlight' }
     ]
   },
+
   {
     name: "John is Smart",
     steps: [
       { text: '=== Resolution Proof: Prove "John is smart" ===', cls: 'rule-name' },
       { text: '', cls: '' },
-      { text: 'KB: S v M (Student OR Smart), ~S (NOT student)', cls: '' },
-      { text: 'Goal: M (John is smart)', cls: '' },
+
+      { text: 'Knowledge Base:', cls: 'rule-name' },
+      { text: '  S1: S v M   (John is a student OR John is smart -- at least one is true)', cls: '' },
+      { text: '  S2: ~S      (John is NOT a student)', cls: '' },
+      { text: '  Goal: Prove M (John is smart)', cls: 'highlight' },
       { text: '', cls: '' },
-      { text: 'Step 1: Add ~M (negate goal)', cls: 'rule-name' },
+
+      { text: '--- Step 1: Negate goal ---', cls: 'rule-name' },
+      { text: '  Assume ~M (John is NOT smart). Seek contradiction.', cls: 'neg' },
       { text: '', cls: '' },
-      { text: 'CNF Clauses:', cls: 'rule-name' },
-      { text: '  C1: S v M', cls: '' },
-      { text: '  C2: ~S', cls: '' },
-      { text: '  C3: ~M         (negation of goal)', cls: 'neg' },
+
+      { text: '--- Step 2: CNF Clauses ---', cls: 'rule-name' },
+      { text: '  C1: S v M      (already in CNF -- it is an OR clause)', cls: '' },
+      { text: '  C2: ~S         (already in CNF)', cls: '' },
+      { text: '  C3: ~M         (negated goal)', cls: 'neg' },
       { text: '', cls: '' },
-      { text: 'Resolve C1 (S v M) with C2 (~S) on S:', cls: '' },
-      { text: '  S and ~S cancel => C4: M', cls: 'highlight' },
+
+      { text: '--- Step 3: Resolve ---', cls: 'rule-name' },
+      { text: '  C1 has S (positive), C2 has ~S (negative).', cls: '' },
+      { text: '  Resolve C1 (S v M) with C2 (~S) on S:', cls: '' },
+      { text: '    S and ~S cancel. What remains? M.', cls: '' },
+      { text: '    C4: M', cls: 'highlight' },
       { text: '', cls: '' },
-      { text: 'Resolve C4 (M) with C3 (~M) on M:', cls: '' },
-      { text: '  M and ~M cancel => {} EMPTY CLAUSE!', cls: 'highlight' },
+      { text: '  C4 has M (positive), C3 has ~M (negative).', cls: '' },
+      { text: '  Resolve C4 (M) with C3 (~M) on M:', cls: '' },
+      { text: '    M and ~M cancel => {} EMPTY CLAUSE!', cls: 'highlight' },
       { text: '', cls: '' },
-      { text: 'PROVED: M is TRUE. "John IS smart"', cls: 'highlight' }
+      { text: 'PROVED: M is TRUE -- "John IS smart"', cls: 'highlight' }
     ]
   },
+
   {
     name: "West is Criminal",
     steps: [
-      { text: '=== Resolution Proof: Prove "West is criminal" ===', cls: 'rule-name' },
+      { text: '=== Resolution Proof: Prove "West is a criminal" ===', cls: 'rule-name' },
+      { text: '  (Classic SPPU exam question!)', cls: '' },
       { text: '', cls: '' },
-      { text: 'KB:', cls: '' },
-      { text: '  S1: A (West is American)', cls: '' },
-      { text: '  S2: E (Nono is enemy)', cls: '' },
-      { text: '  S3: S (West sold missiles)', cls: '' },
-      { text: '  S4: (A AND E AND S AND W) => C', cls: '' },
-      { text: '  S5: W (Missiles are weapons)', cls: '' },
+
+      { text: 'Knowledge Base:', cls: 'rule-name' },
+      { text: '  S1: A          (West is American)', cls: '' },
+      { text: '  S2: E          (Nono is an enemy of America)', cls: '' },
+      { text: '  S3: S          (West sold missiles to Nono)', cls: '' },
+      { text: '  S4: W          (Missiles are weapons)', cls: '' },
+      { text: '  S5: (A AND E AND S AND W) => C', cls: '' },
+      { text: '       "If American AND enemy AND sold AND weapons, then Criminal"', cls: '' },
+      { text: '  Goal: Prove C (West is a criminal)', cls: 'highlight' },
       { text: '', cls: '' },
-      { text: 'Step 1: Add ~C (negate goal)', cls: 'rule-name' },
+
+      // --- Step 1 ---
+      { text: '--- Step 1: Negate goal ---', cls: 'rule-name' },
+      { text: '  Assume ~C (West is NOT a criminal). Find contradiction.', cls: 'neg' },
       { text: '', cls: '' },
-      { text: 'Step 2: Convert S4 to CNF', cls: 'rule-name' },
-      { text: '  (A AND E AND S AND W) => C', cls: '' },
-      { text: '  = NOT(A AND E AND S AND W) OR C', cls: '' },
-      { text: '  = ~A v ~E v ~S v ~W v C', cls: 'highlight' },
+
+      // --- Step 2 with CNF explanation ---
+      { text: '--- Step 2: Convert to CNF ---', cls: 'rule-name' },
       { text: '', cls: '' },
+      { text: '  S1-S4 are already simple literals (A, E, S, W). No conversion needed.', cls: '' },
+      { text: '', cls: '' },
+      { text: '  S5 needs conversion: (A AND E AND S AND W) => C', cls: 'rule-name' },
+      { text: '', cls: '' },
+      { text: '  Step-by-step conversion:', cls: '' },
+      { text: '  Using golden rule: X => Y  =  ~X v Y', cls: '' },
+      { text: '  Here X = (A AND E AND S AND W), Y = C', cls: '' },
+      { text: '  So: ~(A AND E AND S AND W) v C', cls: '' },
+      { text: '', cls: '' },
+      { text: '  Now apply De Morgan\'s Law to ~(A AND E AND S AND W):', cls: '' },
+      { text: '  ~(A AND B) = ~A OR ~B  (negate AND flips to OR)', cls: '' },
+      { text: '  So: ~A v ~E v ~S v ~W v C', cls: 'highlight' },
+      { text: '', cls: '' },
+      { text: '  This single OR-clause says: "At least one of these must be true:', cls: '' },
+      { text: '   West is NOT American, OR Nono is NOT enemy, OR West did NOT sell,', cls: '' },
+      { text: '   OR missiles are NOT weapons, OR West IS criminal."', cls: '' },
+      { text: '', cls: '' },
+
       { text: 'All CNF Clauses:', cls: 'rule-name' },
       { text: '  C1: A', cls: '' },
       { text: '  C2: E', cls: '' },
       { text: '  C3: S', cls: '' },
       { text: '  C4: W', cls: '' },
       { text: '  C5: ~A v ~E v ~S v ~W v C', cls: '' },
-      { text: '  C6: ~C (negation of goal)', cls: 'neg' },
+      { text: '  C6: ~C         (negated goal)', cls: 'neg' },
       { text: '', cls: '' },
-      { text: 'Step 3: Resolve', cls: 'rule-name' },
-      { text: '  C5 + C6 on C: ~A v ~E v ~S v ~W => C7', cls: '' },
-      { text: '  C7 + C1 on A: ~E v ~S v ~W => C8', cls: '' },
-      { text: '  C8 + C2 on E: ~S v ~W => C9', cls: '' },
-      { text: '  C9 + C3 on S: ~W => C10', cls: '' },
-      { text: '  C10 + C4 on W: {} EMPTY CLAUSE!', cls: 'highlight' },
+
+      // --- Step 3 ---
+      { text: '--- Step 3: Resolve (peel off one literal at a time) ---', cls: 'rule-name' },
       { text: '', cls: '' },
-      { text: 'PROVED: C is TRUE. "West IS a criminal"', cls: 'highlight' }
+      { text: '  C5 has C (positive), C6 has ~C (negative).', cls: '' },
+      { text: '  Resolve C5 with C6 on C:', cls: '' },
+      { text: '    C and ~C cancel. Remaining: ~A v ~E v ~S v ~W', cls: '' },
+      { text: '    C7: ~A v ~E v ~S v ~W', cls: 'highlight' },
+      { text: '', cls: '' },
+
+      { text: '  C7 has ~A, C1 has A. They match!', cls: '' },
+      { text: '  Resolve C7 with C1 on A:', cls: '' },
+      { text: '    C8: ~E v ~S v ~W', cls: 'highlight' },
+      { text: '', cls: '' },
+
+      { text: '  C8 has ~E, C2 has E. Match!', cls: '' },
+      { text: '  Resolve C8 with C2 on E:', cls: '' },
+      { text: '    C9: ~S v ~W', cls: 'highlight' },
+      { text: '', cls: '' },
+
+      { text: '  C9 has ~S, C3 has S. Match!', cls: '' },
+      { text: '  Resolve C9 with C3 on S:', cls: '' },
+      { text: '    C10: ~W', cls: 'highlight' },
+      { text: '', cls: '' },
+
+      { text: '  C10 has ~W, C4 has W. Final match!', cls: '' },
+      { text: '  Resolve C10 with C4 on W:', cls: '' },
+      { text: '    {} EMPTY CLAUSE!', cls: 'highlight' },
+      { text: '', cls: '' },
+
+      { text: 'We peeled away every literal. Nothing is left = contradiction!', cls: '' },
+      { text: '~C caused it. So ~C is wrong. Therefore C is true.', cls: '' },
+      { text: 'PROVED: C is TRUE -- "West IS a criminal"', cls: 'highlight' }
     ]
   }
 ];
@@ -1014,7 +1314,17 @@ document.addEventListener('DOMContentLoaded', function() {
   var folExPill = document.querySelector('#folExPills .pill');
   if (folExPill) showFOLEx(0, folExPill);
 
-  // Initialize resolution
+  // Initialize CNF explanation
+  if (typeof cnfExplanation !== 'undefined' && document.getElementById('cnfExplanationResult')) {
+    setStepsImmediate('cnfExplanationResult', cnfExplanation);
+  }
+
+  // Initialize resolution intro
+  if (typeof resolutionIntro !== 'undefined' && document.getElementById('resolutionIntroResult')) {
+    setStepsImmediate('resolutionIntroResult', resolutionIntro);
+  }
+
+  // Initialize resolution demos
   var resResult = document.getElementById('resolutionResult');
   if (resResult) {
     var resPills = resResult.previousElementSibling;

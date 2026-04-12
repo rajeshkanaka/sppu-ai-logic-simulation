@@ -398,6 +398,68 @@ body {
 .fol-tree .connective { background: var(--warn-soft); color: var(--warn); }
 .fol-tree .constant   { background: rgba(28,27,26,0.06); color: var(--text); }
 
+/* ==================== THEOREM PROVING: Educational Components ==================== */
+.concept-box {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.3rem 1.4rem;
+  margin: 1rem 0;
+  box-shadow: var(--shadow-sm);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.concept-box:hover { transform: translateY(-1px); box-shadow: var(--shadow-md); }
+.concept-icon {
+  font-size: 2rem;
+  flex-shrink: 0;
+  width: 48px; height: 48px;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--surface);
+  border-radius: 12px;
+  border: 1px solid var(--border);
+}
+.concept-body { flex: 1; }
+.concept-body strong {
+  font-family: var(--serif);
+  font-size: 1.1rem;
+  color: var(--text);
+  display: block;
+  margin-bottom: 0.4rem;
+  letter-spacing: -0.01em;
+}
+.concept-body p {
+  color: var(--text-soft);
+  font-size: 0.92rem;
+  line-height: 1.65;
+  margin: 0;
+}
+.concept-detective { border-left: 4px solid var(--warn); }
+.concept-formal { border-left: 4px solid var(--info); }
+
+.why-callout {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--warn);
+  border-radius: var(--radius);
+  padding: 1.2rem;
+}
+.why-label {
+  font-family: var(--serif);
+  font-weight: 600;
+  font-size: 1.05rem;
+  color: var(--warn);
+  margin-bottom: 0.8rem;
+  letter-spacing: -0.01em;
+}
+
+@media (max-width: 640px) {
+  .concept-box { flex-direction: column; gap: 0.6rem; }
+  .concept-icon { width: 36px; height: 36px; font-size: 1.5rem; }
+}
+
 /* ==================== TEST MODULE ==================== */
 .topnav button.nav-test {
   color: var(--warn);
